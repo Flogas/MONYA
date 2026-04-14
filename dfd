@@ -1,0 +1,31 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+
+actor "Пользователь" as User
+entity "Электросчётчик" as Meter
+
+database "База данных" as DB
+database "Журнал событий" as Log
+
+rectangle "1. Сбор данных" as P1
+rectangle "2. Передача данных" as P2
+rectangle "3. Обработка данных" as P3
+rectangle "4. Хранение данных" as P4
+rectangle "5. Визуализация и анализ" as P5
+
+Meter --> P1 : Показания
+P1 --> P2 : Сырые данные
+P2 --> P3 : Переданные данные
+
+P3 --> P4 : Обработанные данные
+P4 --> DB
+
+P3 --> Log : События / ошибки
+
+DB --> P5 : Данные для анализа
+P5 --> User : Графики / отчёты
+
+User --> P5 : Запрос данных
+
+@enduml

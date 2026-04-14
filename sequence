@@ -1,0 +1,45 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam sequenceArrowThickness 1.5
+skinparam ParticipantPadding 20
+
+actor "Пользователь" as User
+participant "Электросчётчик\n(виртуальный прибор учёта)" as Meter
+participant "Серверная часть\n(Backend)" as Backend
+participant "Модуль ML\n(Isolation Forest)" as ML
+database "База данных\nPostgreSQL" as DB
+
+== Периодический сбор и обработка данных ==
+
+loop каждые 5 секунд
+    Meter -> Backend : sendMeasurement(energy, power, voltage, current, cosφ, timestamp)
+    Backend -> Backend : validateData()
+    Backend -> DB : storeRawMeasurement()
+    DB --> Backend : ack
+    Backend -> ML : analyzeForAnomalies()
+    ML -> ML : runIsolationForest()
+    alt Аномалия обнаружена
+        ML --> Backend : anomalyDetected(details)
+        Backend -> User : notifyAnomaly(alert)
+    else Нормальный режим
+        Backend -> Backend : continueMonitoring
+    end
+end
+
+== Запрос пользователя на визуализацию ==
+
+User -> Backend : requestDashboard(period)
+Backend -> DB : queryHistoricalData(period)
+DB --> Backend : returnDataSet()
+Backend -> ML : generateForecast()
+ML --> Backend : returnForecast()
+Backend -> User : renderResponse(graphs, reports, forecast, anomalies)
+
+note right of Backend
+  Валидация прав доступа
+  Формирование JSON-ответа
+  WebSocket / REST API
+end note
+
+@enduml
