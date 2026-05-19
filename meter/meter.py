@@ -11,7 +11,7 @@ BACKEND_URL = os.getenv("BACKEND_URL", "http://backend:8000")
 energy_totals = {1: 1234.56, 2: 987.34, 3: 1567.89}  # отдельно для каждого прибора
 
 async def simulate_meter():
-    print("🚀 Виртуальный счётчик MONYA запущен (отправляет данные на ВСЕ 3 прибора)")
+    print("Виртуальный счётчик MONYA запущен (отправляет данные на ВСЕ 3 прибора)")
     
     device_cycle = [1, 2, 3]
     idx = 0
@@ -39,11 +39,11 @@ async def simulate_meter():
         try:
             r = requests.post(f"{BACKEND_URL}/api/measurements", json=payload, timeout=5)
             if r.status_code == 200:
-                print(f"✅ [{datetime.now().strftime('%H:%M:%S')}] Прибор {device_id} → {active_power} кВт")
+                print(f"[{datetime.now().strftime('%H:%M:%S')}] Прибор {device_id} → {active_power} кВт")
             else:
-                print(f"❌ Ошибка {r.status_code} для прибора {device_id}")
+                print(f"Ошибка {r.status_code} для прибора {device_id}")
         except Exception as e:
-            print(f"❌ Не удалось отправить (прибор {device_id}): {e}")
+            print(f"Не удалось отправить (прибор {device_id}): {e}")
 
         await asyncio.sleep(5)   # каждые 5 секунд — данные на следующий прибор
 
