@@ -50,18 +50,17 @@ async def startup():
         break
 
 # ================== ML АНТИ-ФРОД (борьба с майнингом) ==================
-# ================== ML АНТИ-ФРОД (борьба с майнингом) ==================
 def detect_mining_anomaly(df: pd.DataFrame) -> list:
     if len(df) < 30:
         return []
 
     df = df.copy()
 
-    # Вычисляем rolling-статистики
+    # rolling-статистики
     df["rolling_mean"] = df["active_power"].rolling(window=8, min_periods=1).mean()
     df["rolling_std"] = df["active_power"].rolling(window=8, min_periods=1).std()
 
-    # Заполняем NaN (очень важно!)
+    # Заполняем NaN 
     df["rolling_mean"] = df["rolling_mean"].fillna(0)
     df["rolling_std"] = df["rolling_std"].fillna(0)
 
@@ -87,7 +86,7 @@ def detect_mining_anomaly(df: pd.DataFrame) -> list:
                 "timestamp": row["timestamp"].isoformat(),
                 "anomaly_type": "mining_suspect",
                 "value": round(power, 3),
-                "description": f"🚨 ПОДОЗРЕНИЕ НА МАЙНИНГ: стабильное высокое потребление {power} кВт"
+                "description": f"ПОДОЗРЕНИЕ НА МАЙНИНГ: стабильное высокое потребление {power} кВт"
             })
         elif power > 8.0:
             anomalies.append({
@@ -119,7 +118,7 @@ async def get_anomalies(device_id: int = 1, db: AsyncSession = Depends(get_db)):
 
     return detect_mining_anomaly(df)
 
-# ================== Остальные эндпоинты (оставляем без изменений) ==================
+# ================== эндпоинты ==================
 @app.get("/api/devices")
 async def get_devices(db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(models.Device))
@@ -163,7 +162,6 @@ async def get_forecast(device_id: int = 1, db: AsyncSession = Depends(get_db)):
         ]
     }
 
-# Экспорт (оставляем как было)
 @app.get("/api/export/measurements")
 async def export_measurements(device_id: int = 1, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(models.Measurement).where(models.Measurement.device_id == device_id).order_by(desc(models.Measurement.timestamp)))
@@ -186,7 +184,6 @@ async def export_events(device_id: int | None = None, db: AsyncSession = Depends
     return Response(content=output.read(), media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                     headers={"Content-Disposition": f"attachment; filename=events.xlsx"})
 
-# POST + WebSocket (улучшенная версия с ML)
 @app.post("/api/measurements")
 async def add_measurement(data: schemas.MeasurementCreate, db: AsyncSession = Depends(get_db)):
     measurement_dict = data.model_dump()
@@ -198,7 +195,7 @@ async def add_measurement(data: schemas.MeasurementCreate, db: AsyncSession = De
 
     if measurement_dict["active_power"] > 8.0:
         severity = "critical"
-        description = f"🚨 КРИТИЧЕСКАЯ НАГРУЗКА {measurement_dict['active_power']} кВт — возможен майнинг!"
+        description = f"КРИТИЧЕСКАЯ НАГРУЗКА {measurement_dict['active_power']} кВт — возможен майнинг!"
     elif measurement_dict["active_power"] > 5.0:
         severity = "warning"
         description = f"⚠️ Подозрение на майнинг или несанкционированное подключение: {measurement_dict['active_power']} кВт"
