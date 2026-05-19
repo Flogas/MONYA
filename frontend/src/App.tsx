@@ -164,7 +164,7 @@ function App() {
 
         {hasCriticalAnomaly && (
           <div className="mb-6 bg-red-900/30 border border-red-500 text-red-400 px-6 py-4 rounded-3xl flex items-center gap-3">
-            <span className="text-2xl">🚨</span>
+            <span className="text-2xl"></span>
             <div><strong>ВНИМАНИЕ!</strong> Обнаружено подозрение на майнинг или несанкционированное подключение</div>
           </div>
         )}
@@ -283,7 +283,7 @@ function App() {
 
         {tab === 'anomalies' && (
           <div className="bg-gray-800 rounded-3xl p-6">
-            <h2 className="text-xl mb-4">🔍 Диагностика и аномалии (ML Anti-Fraud)</h2>
+            <h2 className="text-xl mb-4">Диагностика и аномалии (ML Anti-Fraud)</h2>
             {anomalies.length === 0 ? (
               <p className="text-emerald-400">Аномалий не обнаружено.</p>
             ) : (
@@ -291,7 +291,7 @@ function App() {
                 {anomalies.map((anomaly, index) => (
                   <div key={index} className="bg-gray-900 p-5 rounded-2xl border border-red-500/30">
                     <div className="flex justify-between">
-                      <span className="text-red-400 font-medium">🚨 {anomaly.anomaly_type === 'mining_suspect' ? 'Подозрение на майнинг' : 'Критическая нагрузка'}</span>
+                      <span className="text-red-400 font-medium">{anomaly.anomaly_type === 'mining_suspect' ? 'Подозрение на майнинг' : 'Критическая нагрузка'}</span>
                       <span className="text-xs text-gray-400">{new Date(anomaly.timestamp).toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' })}</span>
                     </div>
                     <p className="mt-2 text-lg">{anomaly.description}</p>
