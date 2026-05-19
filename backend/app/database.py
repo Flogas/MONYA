@@ -11,7 +11,6 @@ engine = create_async_engine(DATABASE_URL, echo=False)
 
 AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
-# ← Это обязательно должно быть здесь!
 Base = declarative_base()
 
 async def get_db():
